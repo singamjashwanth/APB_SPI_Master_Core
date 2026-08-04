@@ -1,4 +1,4 @@
-module SPI_BAUDRATE_GEN (
+module serial_clock_generator (
 	input PCLK,
 	input PRESET_n,
 	input [1:0] spi_mode_i,

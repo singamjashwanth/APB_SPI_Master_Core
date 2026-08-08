@@ -1,0 +1,30 @@
+****************************************
+Report : area
+Design : spi_shifter
+Version: X-2025.06
+Date   : Sat Aug  8 18:45:48 2026
+****************************************
+
+Information: Updating design information... (UID-85)
+Library(s) Used:
+
+    lsi_10k (File: /home2/BPRN35/SingaMJY/VLSI_RN_OFFLINE/Verilog_labs/lab1/lib/lsi_10k.db)
+
+Number of ports:                           30
+Number of nets:                           198
+Number of cells:                          164
+Number of combinational cells:            135
+Number of sequential cells:                29
+Number of macros/black boxes:               0
+Number of buf/inv:                          8
+Number of references:                      15
+
+Combinational area:                194.000000
+Buf/Inv area:                        8.000000
+Noncombinational area:             255.000000
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (No wire load specified)
+
+Total cell area:                   449.000000
+Total area:                 undefined
+1

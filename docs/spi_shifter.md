@@ -232,6 +232,6 @@ docs/
 └── spi_shifter.md
 ```
 
-## Author
+## Developed By
 
-SPI Master Controller Project — Shifter Block Documentation
+Singam Jashwanth

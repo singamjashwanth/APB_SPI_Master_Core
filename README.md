@@ -274,6 +274,7 @@ APB_SPI_Master_Core/
 
 - LinkedIn: https://www.linkedin.com/in/singam-jashwanth
 - GitHub: https://github.com/singamjashwanth
+- Gmail: singamjashwanthyadav@gmail.com
 
 ---
 

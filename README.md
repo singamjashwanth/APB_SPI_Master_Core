@@ -1,262 +1,386 @@
-# 🚀 APB Based SPI Master Core
+# 🚀 APB-Based SPI Master IP Core
 
-### Verilog HDL | APB Protocol | SPI Protocol | ASIC Front-End Design Flow
+<div align="center">
 
-A modular **APB (Advanced Peripheral Bus) based SPI Master IP Core** implemented in **Verilog HDL** and verified using industry-standard ASIC design tools.
+### AMBA APB | SPI Protocol | Verilog HDL | ASIC Front-End Design Flow
 
-![RTL](https://img.shields.io/badge/RTL-Verilog-blue)
-![Lint](https://img.shields.io/badge/Lint-VC%20SpyGlass-green)
-![Synthesis](https://img.shields.io/badge/Synthesis-Synopsys%20DC-orange)
-![Status](https://img.shields.io/badge/Project-In%20Progress-yellow)
+A fully integrated, configurable, and verified **SPI Master IP Core** controlled through an **AMBA APB (Advanced Peripheral Bus)** interface, developed using **Verilog HDL** and validated through a complete ASIC front-end design flow.
 
----
+![Verilog](https://img.shields.io/badge/RTL-Verilog-blue)
+![APB](https://img.shields.io/badge/Protocol-AMBA%20APB-orange)
+![SPI](https://img.shields.io/badge/Protocol-SPI-green)
+![Verification](https://img.shields.io/badge/Verification-Completed-brightgreen)
+![Lint](https://img.shields.io/badge/VC%20SpyGlass-PASS-success)
+![Synthesis](https://img.shields.io/badge/Synopsys%20DC-PASS-success)
+![Status](https://img.shields.io/badge/Project-Completed-success)
 
-# 📖 Project Overview
-
-This project implements a configurable **SPI Master IP Core** controlled through an **APB Interface**.
-
-The design follows a modular ASIC front-end development methodology where every RTL block is:
-
-- ✅ Designed in Verilog HDL
-- ✅ Functionally Verified
-- ✅ Waveform Validated
-- ✅ Lint Checked using Synopsys VC SpyGlass
-- ✅ Synthesized using Synopsys Design Compiler
-- ✅ Converted to Gate-Level Netlist
-- ✅ Documented for Reusability
-
-The objective is to gain hands-on experience in RTL Design, Verification, Linting, and Logic Synthesis using industry-standard tools.
+</div>
 
 ---
 
-# 🎯 Project Objectives
+# 📌 Project Overview
 
-- Design an APB-compliant SPI Master IP Core
-- Implement configurable Serial Clock Generation
-- Implement SPI Shift Register Logic
-- Develop APB Slave Interface
-- Develop SPI Control Logic
-- Verify each module independently
-- Perform ASIC Front-End Design Flow
-- Integrate all modules into a complete SPI Master subsystem
+The **APB-Based SPI Master IP Core** is a configurable serial communication controller that enables communication between a processor and SPI-compatible peripherals through a standard AMBA APB interface.
+
+The IP core supports:
+
+* APB-based register programming
+* Configurable SPI operating modes
+* Programmable baud-rate generation
+* MOSI/MISO serial communication
+* Master mode operation
+* Transfer status monitoring
+* Interrupt generation
+* Full system-level verification
+
+This project was developed following an industry-oriented ASIC front-end methodology, including RTL design, functional verification, lint analysis, logic synthesis, and subsystem integration.
 
 ---
 
-# 🏗 SPI Master Architecture
+# 🎯 Project Goals
+
+### Functional Goals
+
+* Implement a configurable SPI Master Controller
+* Support APB register access
+* Support SPI Modes 0, 1, 2, and 3
+* Support configurable baud-rate generation
+* Support MSB-first and LSB-first communication
+* Generate SPI clock and slave-select signals
+* Enable full-duplex SPI communication
+* Generate transfer completion notifications
+
+### Learning Goals
+
+* RTL Design using Verilog HDL
+* Functional Verification
+* Testbench Development
+* Protocol Implementation (APB & SPI)
+* SpyGlass Lint Analysis
+* Design Compiler Synthesis
+* Top-Level Integration
+* ASIC Front-End Design Flow
+
+---
+
+# 🏗️ System Architecture
 
 ```text
-                    +-------------------+
-                    |   APB Interface   |
-                    +---------+---------+
-                              |
-                              v
-                    +-------------------+
-                    |  SPI Control Unit |
-                    +----+---------+----+
-                         |         |
-                         v         v
-              +---------------+  +---------------+
-              | Clock Gen     |  | SPI Shifter   |
-              +---------------+  +---------------+
+                        +----------------------+
+                        |      APB MASTER      |
+                        +----------+-----------+
+                                   |
+                                   |
+                                   v
++----------------------------------------------------------------+
+|                    SPI MASTER IP CORE                          |
+|                                                                |
+|   +--------------------+                                       |
+|   |  APB Interface     |                                       |
+|   | Register Bank/FSM  |                                       |
+|   +---------+----------+                                       |
+|             |                                                  |
+|             v                                                  |
+|   +--------------------+                                       |
+|   | SPI Slave Control  |                                       |
+|   +----+----------+----+                                       |
+|        |          |                                            |
+|        |          |                                            |
+|        v          v                                            |
+|  +-----------+   +-----------+                                 |
+|  | Clock Gen |   | SPI Shift |                                 |
+|  +-----------+   +-----------+                                 |
+|                                                                |
++----------------------------------------------------------------+
+             |         |          |           |
+             v         v          v           v
+
+           MOSI      MISO       SCLK        SS
 ```
 
-> Detailed architecture diagram will be added after complete subsystem integration.
+---
+
+# 📚 Supported SPI Features
+
+## SPI Modes
+
+| SPI Mode | CPOL | CPHA |
+| -------- | ---- | ---- |
+| Mode 0   | 0    | 0    |
+| Mode 1   | 0    | 1    |
+| Mode 2   | 1    | 0    |
+| Mode 3   | 1    | 1    |
+
+---
+
+## Data Transfer Features
+
+* Full Duplex Communication
+* Master Mode Operation
+* MSB First Transmission
+* LSB First Transmission
+* Parallel-to-Serial Conversion
+* Serial-to-Parallel Conversion
+* Transfer-In-Progress Detection
+* Transfer Completion Detection
+
+---
+
+## Clock Features
+
+* Programmable SPI Clock
+* Baud Rate Prescaler
+* CPOL Support
+* CPHA Support
+* Edge-Based Sampling
+* Edge-Based Transmission
+
+---
+
+# 🧩 Design Modules
+
+---
+
+## 1. APB Interface
+
+### Responsibilities
+
+* APB Slave Protocol Handling
+* Register Access Management
+* Configuration Storage
+* Status Monitoring
+* Interrupt Generation
+
+### Implemented Registers
+
+| Register | Description             |
+| -------- | ----------------------- |
+| SPI_CR1  | SPI Control Register 1  |
+| SPI_CR2  | SPI Control Register 2  |
+| SPI_BR   | Baud Rate Configuration |
+| SPI_DR   | SPI Data Register       |
+| SPI_SR   | SPI Status Register     |
+
+---
+
+## 2. Serial Clock Generator
+
+### Responsibilities
+
+* SPI Clock Generation
+* Baud Rate Division
+* CPOL Handling
+* CPHA Handling
+* Edge Generation
+
+### Features
+
+✅ Programmable Clock Divider
+
+✅ CPOL Support
+
+✅ CPHA Support
+
+✅ Multi-Mode SPI Operation
+
+✅ Transmit Edge Flags
+
+✅ Receive Edge Flags
+
+---
+
+## 3. SPI Shifter
+
+### Responsibilities
+
+* MOSI Data Transmission
+* MISO Data Reception
+* Data Serialization
+* Data Deserialization
+
+### Features
+
+✅ MSB First Support
+
+✅ LSB First Support
+
+✅ Parallel-to-Serial Conversion
+
+✅ Serial-to-Parallel Conversion
+
+✅ SPI Mode Compatibility
+
+---
+
+## 4. SPI Slave Control
+
+### Responsibilities
+
+* Slave Select Control
+* Transfer Management
+* Transfer Completion Detection
+* Transfer-In-Progress Monitoring
+
+### Features
+
+✅ SS Generation
+
+✅ Transfer Start Control
+
+✅ Receive Completion Detection
+
+✅ Transfer Status Generation
+
+---
+
+## 5. SPI Core Top
+
+### Responsibilities
+
+* Subsystem Integration
+* Intermodule Communication
+* External SPI Interface
+
+### Features
+
+✅ APB Integration
+
+✅ SPI Integration
+
+✅ Interrupt Support
+
+✅ End-to-End Communication
 
 ---
 
 # 🔄 ASIC Front-End Design Flow
 
 ```text
-RTL Design
-    ↓
+Requirement Analysis
+        ↓
+RTL Architecture
+        ↓
+RTL Coding
+        ↓
 Testbench Development
-    ↓
-Functional Simulation
-    ↓
-Waveform Verification
-    ↓
+        ↓
+Functional Verification
+        ↓
+Waveform Validation
+        ↓
 VC SpyGlass Linting
-    ↓
+        ↓
 Design Compiler Synthesis
-    ↓
+        ↓
 Gate-Level Netlist Generation
-    ↓
-Subsystem Integration
+        ↓
+Top-Level Integration
+        ↓
+System Verification
 ```
 
 ---
 
-# 📊 Development Status
+# 🧪 Verification Methodology
 
-| Module | RTL | TB | Lint | Synthesis |
-|----------|----------|----------|----------|----------|
-| Serial Clock Generator | ✅ | ✅ | ✅ | ✅ |
-| SPI Shifter | ✅ | ✅ | ✅ | ✅ |
-| APB Slave Interface | 🚧 | 🚧 | ⏳ | ⏳ |
-| SPI Control Logic | 🚧 | 🚧 | ⏳ | ⏳ |
-| Top-Level Integration | ⏳ | ⏳ | ⏳ | ⏳ |
+Each RTL block was verified independently before subsystem integration.
+
+### Verification Performed
+
+✅ APB Write Operations
+
+✅ APB Read Operations
+
+✅ SPI Clock Verification
+
+✅ MOSI Transmission Verification
+
+✅ MISO Reception Verification
+
+✅ SPI Mode Verification
+
+✅ Baud Rate Verification
+
+✅ Interrupt Verification
+
+✅ Transfer Completion Verification
+
+✅ Top-Level Integration Verification
+
+---
+
+# 📊 Project Status
+
+| Module                 | RTL | Testbench | Verification | Lint | Synthesis |
+| ---------------------- | --- | --------- | ------------ | ---- | --------- |
+| APB Interface          | ✅   | ✅         | ✅            | ✅    | ✅         |
+| Serial Clock Generator | ✅   | ✅         | ✅            | ✅    | ✅         |
+| SPI Shifter            | ✅   | ✅         | ✅            | ✅    | ✅         |
+| SPI Slave Control      | ✅   | ✅         | ✅            | ✅    | ✅         |
+| SPI Core Top           | ✅   | ✅         | ✅            | ✅    | ✅         |
 
 ---
 
 # 📂 Repository Structure
 
 ```text
-APB_SPI_Master_Core/
+APB_SPI_MASTER_CORE/
 │
 ├── rtl/
+│   ├── spi_apb_interface.v
 │   ├── serial_clock_generator.v
 │   ├── spi_shifter.v
+│   ├── spi_slave_control.v
+│   └── spi_core_top.v
 │
 ├── tb/
+│   ├── spi_apb_interface_tb.v
 │   ├── serial_clock_generator_tb.v
 │   ├── spi_shifter_tb.v
+│   ├── spi_slave_control_tb.v
+│   └── spi_core_top_tb.v
 │
 ├── docs/
-│   ├── serial_clock_generator.md
-│   └── spi_shifter.md
-│
-├── waveforms/
-│
-├── schematic/
-│
-├── netlist/
-│   ├── serial_clock_generator_netlist.v
-│   └── spi_shifter_netlist.v
 │
 ├── reports/
 │   ├── lint/
-│   │   ├── serial_clock_generator_lint_report.txt
-│   │   └── spi_shifter_lint_report.txt
-│   │
 │   └── synthesis/
-│       ├── serial_clock_generator_area_report.txt
-│       └── spi_shifter_area_report.txt
+│
+├── netlist/
+│
+├── waveforms/
 │
 ├── scripts/
-│   ├── lint/
-│   │   ├── serial_clock_generator_lint.tcl
-│   │   └── spi_shifter_lint.tcl
-│   │
-│   └── synthesis/
-│       ├── serial_clock_generator_dc.tcl
-│       └── spi_shifter_dc.tcl
 │
 └── README.md
 ```
 
 ---
 
-# 🚀 Completed Module : Serial Clock Generator
+# 🛠️ Tools & Technologies
 
-### Features
-
-- Programmable SPI Clock Generation
-- Baud Rate Selection Logic
-- CPOL Support
-- CPHA Support
-- Multi-Mode SPI Clock Generation
-
-### Verification
-
-- Dedicated Testbench Developed
-- Functional Verification Completed
-- Waveform Validation Completed
-
-### VC SpyGlass Lint Result
-
-| Fatals | Errors | Warnings |
-|---------|---------|---------|
-| 0 | 0 | 0 |
-
-**Status:** ✅ PASS
-
-### Design Compiler Synthesis Result
-
-| Metric | Value |
-|----------|----------|
-| Total Cells | 195 |
-| Combinational Cells | 177 |
-| Sequential Cells | 17 |
-| Total Cell Area | 419 |
-
-**Status:** ✅ PASS
-
-📄 Documentation: `docs/serial_clock_generator.md`
+| Category           | Tool                     |
+| ------------------ | ------------------------ |
+| RTL Design         | Verilog HDL              |
+| Simulation         | ModelSim                 |
+| Lint Analysis      | Synopsys VC SpyGlass     |
+| Logic Synthesis    | Synopsys Design Compiler |
+| Version Control    | Git                      |
+| Repository Hosting | GitHub                   |
+| Operating System   | Linux                    |
 
 ---
 
-# 🚀 Completed Module : SPI Shifter
+# 🚀 Future Enhancements
 
-### Features
-
-- MOSI Transmission
-- MISO Reception
-- LSB First Support
-- MSB First Support
-- Parallel-to-Serial Conversion
-- Serial-to-Parallel Conversion
-- SPI Mode Support
-
-### Verification
-
-- Dedicated Testbench Developed
-- Functional Verification Completed
-- Waveform Validation Completed
-
-### VC SpyGlass Lint Result
-
-| Fatals | Errors | Warnings |
-|---------|---------|---------|
-| 0 | 0 | 0 |
-
-**Status:** ✅ PASS
-
-### Design Compiler Synthesis
-
-**Status:** ✅ PASS
-
-📄 Documentation: `docs/spi_shifter.md`
-
----
-
-# 🛠 Tools Used
-
-| Category | Tool |
-|----------|----------|
-| RTL Design | Verilog HDL |
-| Simulation | ModelSim |
-| Lint Analysis | Synopsys VC SpyGlass |
-| Logic Synthesis | Synopsys Design Compiler |
-| Version Control | Git |
-| Repository Hosting | GitHub |
-| Operating System | Linux |
-
----
-
-# 📈 Current Progress
-
-- ✅ Repository Initialized
-- ✅ Serial Clock Generator Completed
-- ✅ SPI Shifter Completed
-- ✅ Functional Verification Completed
-- ✅ VC SpyGlass Linting Completed
-- ✅ Design Compiler Synthesis Completed
-- 🚧 APB Slave Interface Development
-- 🚧 SPI Control Logic Development
-- ⏳ Top-Level Integration
-- ⏳ System-Level Verification
-
----
-
-# 📌 Future Enhancements
-
-- Complete APB Slave Interface
-- Complete SPI Control Logic
-- Integrate Complete SPI Master Core
-- SystemVerilog-Based Verification
-- Assertion-Based Verification (SVA)
-- Functional Coverage
-- UVM Testbench Development
+* SystemVerilog Migration
+* Assertion-Based Verification (SVA)
+* Functional Coverage
+* Constrained Random Verification
+* UVM Testbench Development
+* Formal Verification
+* FPGA Prototyping
+* APB Bus Functional Model
 
 ---
 
@@ -270,46 +394,33 @@ APB_SPI_Master_Core/
 
 **Aspiring Design Verification Engineer**
 
-### Connect
+### Connect With Me
 
-- LinkedIn: https://www.linkedin.com/in/singam-jashwanth
-- GitHub: https://github.com/singamjashwanth
-- Gmail: singamjashwanthyadav@gmail.com
+📧 Email: [singamjashwanthyadav@gmail.com](mailto:singamjashwanthyadav@gmail.com)
 
----
+💼 LinkedIn: https://www.linkedin.com/in/singam-jashwanth
 
-# ⭐ Project Status
-
-**Actively Under Development**
-
-### Module Completion
-
-| Module | Status |
-|----------|----------|
-| Serial Clock Generator | ✅ Completed |
-| SPI Shifter | ✅ Completed |
-| APB Slave Interface | 🚧 In Progress |
-| SPI Control Logic | 🚧 In Progress |
-| Top-Level Integration | ⏳ Pending |
+💻 GitHub: https://github.com/singamjashwanth
 
 ---
 
-### ASIC Front-End Flow Followed
+# ⭐ Project Highlights
 
-```text
-RTL Design
-    ↓
-Testbench Development
-    ↓
-Functional Verification
-    ↓
-VC SpyGlass Linting
-    ↓
-Design Compiler Synthesis
-    ↓
-Gate-Level Netlist Generation
-    ↓
-Subsystem Integration
-```
+* Complete APB-Based SPI Master Implementation
+* Fully Modular RTL Architecture
+* Protocol-Level Verification
+* SpyGlass Lint Clean Design
+* Design Compiler Synthesized RTL
+* Gate-Level Netlist Generated
+* Top-Level Integrated and Verified
+* ASIC Front-End Design Flow Demonstration
 
-🚀 New modules, reports, waveforms, and verification results will be added as development progresses.
+---
+
+<div align="center">
+
+## ✅ PROJECT COMPLETED
+
+**A complete APB-Based SPI Master IP Core developed using industry-standard ASIC design methodologies.**
+
+</div>

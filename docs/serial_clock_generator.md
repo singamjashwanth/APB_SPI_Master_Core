@@ -2,94 +2,141 @@
 
 ## Overview
 
-The Serial Clock Generator module generates the Serial Peripheral Interface (SPI) Serial Clock (`SCLK`) from the APB Peripheral Clock (`PCLK`).
+The Serial Clock Generator module generates the SPI Serial Clock (`sclk_o`) and timing control signals required for data transmission and reception in the SPI Master Core.
 
-In addition to clock generation, the module produces timing control signals used by the SPI Shifter block for MOSI transmission and MISO sampling according to the configured SPI mode.
+The module derives the SPI clock from the APB Peripheral Clock (`PCLK`) using programmable baud rate settings and supports all four standard SPI modes through Clock Polarity (CPOL) and Clock Phase (CPHA) configuration.
 
-This module is a key component of the APB Based SPI Master Core.
+In addition to clock generation, the module produces dedicated timing pulses used by the SPI Shifter for:
 
----
+- MOSI data transmission
+- MISO data reception
 
-# Features
-
-- Configurable SPI Baud Rate Generation
-- Programmable Clock Divider
-- CPOL (Clock Polarity) Support
-- CPHA (Clock Phase) Support
-- SPI Mode 0, 1, 2 and 3 Compatibility
-- MOSI Transmission Timing Generation
-- MISO Sampling Timing Generation
-- Slave Select Based Clock Control
-- Wait Mode Support
+This module acts as the timing backbone of the SPI Master Core.
 
 ---
 
-# Block Diagram
+## Features
 
-```text
-                  +----------------------+
-                  | Serial Clock         |
-                  | Generator            |
-                  +----------+-----------+
-                             |
-         +-------------------+-------------------+
-         |                                       |
-         v                                       v
+✔ Programmable SPI Clock Frequency
 
-   SPI Serial Clock                     Timing Signals
-      (SCLK)                      (MOSI / MISO Controls)
-```
+✔ Configurable Baud Rate Divider
+
+✔ CPOL Support
+
+✔ CPHA Support
+
+✔ SPI Modes 0, 1, 2, and 3
+
+✔ MOSI Timing Pulse Generation
+
+✔ MISO Timing Pulse Generation
+
+✔ Slave Select Controlled Clock Generation
+
+✔ Wait Mode Support
+
+✔ Active-Low Asynchronous Reset
 
 ---
 
-# Inputs
+## Architecture
+
+![Serial Clock Generator Architecture](../images/serial_clock_generator_architecture.png)
+
+The Serial Clock Generator consists of three major functional blocks:
+
+1. Baud Rate Divider
+2. SPI Clock Generator
+3. MOSI/MISO Timing Pulse Generator
+
+---
+
+## Inputs
 
 | Signal | Width | Description |
-|---------|---------|---------|
-| `PCLK` | 1 | APB Peripheral Clock |
-| `PRESET_n` | 1 | Active Low Reset |
-| `spi_mode_i` | 1 | SPI Enable |
-| `spiswai_i` | 1 | SPI Stop in Wait Mode |
-| `sppr_i` | 3 | Baud Rate Prescaler |
-| `spr_i` | 3 | Baud Rate Divider |
-| `cpol_i` | 1 | Clock Polarity |
-| `cpha_i` | 1 | Clock Phase |
-| `ss_i` | 1 | Slave Select |
+|----------|----------|-------------|
+| PCLK | 1 | APB Peripheral Clock |
+| PRESET_n | 1 | Active-Low Reset |
+| spi_mode_i | 2 | SPI Operating Mode |
+| spiswai_i | 1 | SPI Stop In Wait Mode |
+| sppr_i | 3 | Baud Rate Prescaler |
+| spr_i | 3 | Baud Rate Divider |
+| cpol_i | 1 | Clock Polarity |
+| cpha_i | 1 | Clock Phase |
+| ss_i | 1 | Slave Select |
 
 ---
 
-# Outputs
+## Outputs
 
 | Signal | Width | Description |
-|---------|---------|---------|
-| `sclk_o` | 1 | Generated SPI Serial Clock |
-| `BaudRateDivisor_o` | 8 | Baud Rate Divisor Value |
-| `miso_recieve_sclk_o` | 1 | Rising Edge MISO Sample Pulse |
-| `miso_recieve_sclk0_o` | 1 | Falling Edge MISO Sample Pulse |
-| `mosi_send_sclk_o` | 1 | Rising Edge MOSI Transmit Pulse |
-| `mosi_send_sclk0_o` | 1 | Falling Edge MOSI Transmit Pulse |
+|----------|----------|-------------|
+| sclk_o | 1 | Generated SPI Clock |
+| BaudRateDivisor_o | 12 | Calculated Baud Rate Divisor |
+| miso_receive_sclk_o | 1 | Rising Edge Receive Pulse |
+| miso_receive_sclk0_o | 1 | Falling Edge Receive Pulse |
+| mosi_send_sclk_o | 1 | Rising Edge Transmit Pulse |
+| mosi_send_sclk0_o | 1 | Falling Edge Transmit Pulse |
 
 ---
 
-# Baud Rate Calculation
+## Baud Rate Calculation
 
-The baud rate divisor is calculated as:
+The SPI clock frequency is determined using the baud rate prescaler (`SPPR`) and divider (`SPR`).
+
+The divisor is calculated as:
 
 ```text
 BaudRateDivisor = (SPPR + 1) × 2^(SPR + 1)
 ```
 
-The SPI Serial Clock frequency is derived from:
+The module internally uses:
 
-```text
-SCLK = PCLK / BaudRateDivisor
+```verilog
+assign BaudRateDivisor =
+       ((sppr_i + 1) * (2 ** (spr_i + 1)));
 ```
 
-This enables configurable SPI communication speeds based on application requirements.
+The generated clock toggle count is:
+
+```verilog
+assign BaudRateDivisor_o =
+       BaudRateDivisor / 2;
+```
+
+### Example
+
+For:
+
+```text
+SPPR = 0
+SPR  = 2
+```
+
+Calculation:
+
+```text
+BaudRateDivisor
+= (0 + 1) × 2^(2 + 1)
+
+= 1 × 8
+
+= 8
+```
+
+Therefore:
+
+```text
+BaudRateDivisor_o = 4
+```
+
+The SPI clock toggles every four PCLK cycles.
 
 ---
 
-# SPI Mode Support
+## SPI Mode Support
+
+The module supports all four standard SPI modes.
 
 | SPI Mode | CPOL | CPHA |
 |-----------|------|------|
@@ -98,66 +145,170 @@ This enables configurable SPI communication speeds based on application requirem
 | Mode 2 | 1 | 0 |
 | Mode 3 | 1 | 1 |
 
-The generated timing flags automatically adapt to the selected SPI mode.
+CPOL determines the idle state of the clock.
+
+CPHA determines the edge used for data sampling and transmission.
 
 ---
 
-# Working Principle
+## Internal Working
 
-### Step 1: Baud Rate Calculation
+### 1. Clock Idle State Generation
 
-The module computes the SPI clock divider using the prescaler and divider configuration.
+The idle state of the SPI clock is determined by CPOL.
 
-### Step 2: Clock Division
+```verilog
+assign pre_sclk_s =
+       cpol_i ? 1'b1 : 1'b0;
+```
 
-The APB Peripheral Clock is divided to generate the SPI Serial Clock (`SCLK`).
+#### CPOL = 0
 
-### Step 3: SPI Mode Selection
+```text
+Idle Clock = LOW
+```
 
-Clock Polarity (`CPOL`) and Clock Phase (`CPHA`) determine:
+#### CPOL = 1
 
-- Clock idle state
-- Data transmission edge
-- Data sampling edge
-
-### Step 4: Timing Signal Generation
-
-The module generates:
-
-- MOSI transmit timing pulses
-- MISO sample timing pulses
-
-These timing signals are consumed by the SPI Shifter module.
-
-### Step 5: Clock Disable Conditions
-
-Clock generation is halted when:
-
-- Slave Select is inactive
-- SPI Wait Mode is enabled
+```text
+Idle Clock = HIGH
+```
 
 ---
 
-# Functional Verification
+### 2. SPI Clock Generation
+
+An internal counter (`count_s`) is incremented on every rising edge of `PCLK`.
+
+```verilog
+count_s <= count_s + 1'b1;
+```
+
+When:
+
+```verilog
+count_s == BaudRateDivisor_o - 1
+```
+
+the SPI clock toggles.
+
+```verilog
+sclk_o <= ~sclk_o;
+```
+
+This creates the required SPI serial clock frequency.
+
+Clock generation occurs only when:
+
+```text
+ss_i = 0
+SPI Enabled
+Wait Mode Disabled
+```
+
+---
+
+### 3. MISO Timing Pulse Generation
+
+The module generates timing pulses indicating when incoming MISO data should be sampled.
+
+Depending on the selected SPI mode:
+
+#### Rising Edge Sampling
+
+```verilog
+miso_receive_sclk_o
+```
+
+is asserted.
+
+#### Falling Edge Sampling
+
+```verilog
+miso_receive_sclk0_o
+```
+
+is asserted.
+
+These signals are used by the SPI Shifter to capture incoming serial data.
+
+---
+
+### 4. MOSI Timing Pulse Generation
+
+The module generates timing pulses indicating when MOSI data should be updated.
+
+#### Rising Edge Transmission
+
+```verilog
+mosi_send_sclk_o
+```
+
+is asserted.
+
+#### Falling Edge Transmission
+
+```verilog
+mosi_send_sclk0_o
+```
+
+is asserted.
+
+These timing pulses ensure data is stable before the receiving device samples it.
+
+---
+
+## Integration with SPI Core
+
+The Serial Clock Generator receives configuration information from:
+
+- SPI APB Interface
+- SPI Control Logic
+
+and provides timing signals to:
+
+- SPI Shifter
+
+```text
+SPI APB Interface
+          |
+          v
+Serial Clock Generator
+          |
+          +----> sclk_o
+          |
+          +----> MOSI Timing Pulses
+          |
+          +----> MISO Timing Pulses
+          |
+          v
+      SPI Shifter
+```
+
+---
+
+## Functional Verification
 
 A dedicated Verilog testbench was developed to verify:
 
 - Reset Operation
-- Baud Rate Generation
-- Clock Division Logic
+- Baud Rate Calculation
+- SPI Clock Generation
 - CPOL Functionality
 - CPHA Functionality
 - SPI Mode Operation
 - Slave Select Control
-- Wait Mode Functionality
+- Wait Mode Control
+- MOSI Timing Pulses
+- MISO Timing Pulses
 
-Simulation Tool:
+### Simulation Tool
 
 ```text
 ModelSim
 ```
 
-Verification Status:
+### Verification Status
 
 ```text
 PASS
@@ -165,23 +316,23 @@ PASS
 
 ---
 
-# VC SpyGlass Lint Analysis
+## Lint Analysis
 
-Tool Used:
+### Tool
 
 ```text
 Synopsys VC SpyGlass
 ```
 
-Results:
+### Results
 
 | Metric | Count |
-|---------|---------|
+|----------|----------|
 | Fatals | 0 |
 | Errors | 0 |
 | Warnings | 0 |
 
-Status:
+### Status
 
 ```text
 PASS ✅
@@ -189,26 +340,21 @@ PASS ✅
 
 ---
 
-# Design Compiler Synthesis
+## Logic Synthesis
 
-Tool Used:
+### Tool
 
 ```text
 Synopsys Design Compiler
 ```
 
-### Synthesis Summary
+### Outputs Generated
 
-| Metric | Value |
-|---------|---------|
-| Number of Ports | 31 |
-| Number of Nets | 214 |
-| Number of Cells | 195 |
-| Combinational Cells | 177 |
-| Sequential Cells | 17 |
-| Total Cell Area | 419 |
+- Gate-Level Netlist
+- Area Report
+- RTL Schematic
 
-Status:
+### Status
 
 ```text
 PASS ✅
@@ -216,70 +362,35 @@ PASS ✅
 
 ---
 
-# Generated Artifacts
-
-### RTL Source
+## Repository Structure
 
 ```text
 rtl/
-└── serial_clock_generator.v
-```
+├── serial_clock_generator.v
 
-### Testbench
-
-```text
 tb/
-└── serial_clock_generator_tb.v
-```
+├── serial_clock_generator_tb.v
 
-### Waveforms
+docs/
+├── serial_clock_generator.md
 
-```text
 waveforms/
-└── serial_clock_generator_waveform.png
-```
+├── serial_clock_generator/
 
-### RTL Schematic
+images/
+├── serial_clock_generator_architecture.png
 
-```text
-schematic/
-└── serial_clock_generator_rtl.png
-```
+reports/
+├── lint/
+└── synthesis/
 
-### Lint Reports
-
-```text
-reports/lint/
-└── serial_clock_generator_lint_report.txt
-```
-
-### Synthesis Reports
-
-```text
-reports/synthesis/
-└── serial_clock_generator_area_report.txt
-```
-
-### Gate-Level Netlist
-
-```text
 netlist/
-└── serial_clock_generator_netlist.v
-```
-
-### TCL Scripts
-
-```text
-scripts/lint/
-└── serial_clock_generator_lint.tcl
-
-scripts/synthesis/
-└── serial_clock_generator_dc.tcl
+├── serial_clock_generator_netlist.v
 ```
 
 ---
 
-# Design Flow Followed
+## Design Flow
 
 ```text
 RTL Design
@@ -299,7 +410,7 @@ Gate-Level Netlist Generation
 
 ---
 
-# Status
+## Status
 
 | Item | Status |
 |---------|---------|
@@ -307,9 +418,8 @@ Gate-Level Netlist Generation
 | Testbench | ✅ Completed |
 | Functional Verification | ✅ Completed |
 | Waveform Validation | ✅ Completed |
-| RTL Schematic | ✅ Completed |
-| VC SpyGlass Linting | ✅ Completed |
-| Design Compiler Synthesis | ✅ Completed |
+| Lint Analysis | ✅ Completed |
+| Logic Synthesis | ✅ Completed |
 | Gate-Level Netlist | ✅ Generated |
 | Documentation | ✅ Completed |
 
@@ -317,6 +427,4 @@ Gate-Level Netlist Generation
 
 ## Conclusion
 
-The Serial Clock Generator module has been successfully designed, verified, lint-cleaned, synthesized, and documented as part of the APB Based SPI Master Core project.
-
-The generated clock and timing control signals serve as the foundation for SPI communication and interface directly with the SPI Shifter module.
+The Serial Clock Generator is responsible for producing the SPI serial clock and timing control pulses required for SPI communication. It supports programmable baud rates, all four SPI modes, configurable clock polarity and phase, and provides synchronization signals for the SPI Shifter. The module has been successfully verified through simulation, validated using lint analysis, and synthesized using Synopsys Design Compiler as part of the APB Based SPI Master Core project.

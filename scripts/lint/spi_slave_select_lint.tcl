@@ -6,7 +6,7 @@ set_app_var enable_lint_save true
 # Lint Setup
 configure_lint_setup -goal lint_rtl
 # Top Module
-set top "spi_slave_select_lint.tcl"
+set top "spi_slave_select"
 # Analyze RTL
 analyze -format verilog "./rtl/${top}.v"
 # Elaborate

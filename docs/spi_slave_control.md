@@ -321,4 +321,4 @@ spi_slave_control/
 
 ## Conclusion
 
-The SPI Slave Control module provides automatic Slave Select generation and transfer supervision for SPI communication. It ensures proper slave activation, transfer timing management, receive-data synchronization, and transfer status monitoring, making it an essential control block within the APB-Based SPI Master Core.
+The SPI Slave Control module provides automatic Slave Select generation and transfer supervision for SPI communication. It ensures proper slave activation, transfer timing management, receive-data synchronization and transfer status monitoring, making it an essential control block within the APB-Based SPI Master Core.

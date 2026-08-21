@@ -12,7 +12,7 @@ This block acts as the transaction controller between the APB Interface and SPI 
 
 ## Architecture
 
-![SPI Slave Control Architecture](architecture.png)
+![SPI Slave Control Architecture](slave_architecture.png)
 
 ---
 

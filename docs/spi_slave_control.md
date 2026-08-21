@@ -308,7 +308,7 @@ spi_slave_control/
 │   └── waveform.png
 │
 ├── docs/
-│   └── architecture.png
+│   └── slave_architecture.png
 │
 ├── reports/
 │   ├── lint/

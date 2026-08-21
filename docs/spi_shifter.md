@@ -1,6 +1,6 @@
 ## Waveform Explanation
 
-![SPI Shifter Waveform](waveforms/spi_shifter.png)
+![SPI Shifter Waveform](waveforms/spi_slave_control.png)
 
 ### Step-by-Step Operation
 

@@ -10,7 +10,7 @@ This module serves as the control logic between the APB interface and the SPI da
 
 ## Block Diagram
 
-![SPI Slave Control Block Diagram](slave_architecture.png)
+![SPI Slave Control Block Diagram](images/slave_architecture.png)
 
 ---
 
